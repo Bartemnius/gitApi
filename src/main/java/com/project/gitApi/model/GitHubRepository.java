@@ -7,6 +7,5 @@ import java.util.List;
 @Data
 public class GitHubRepository {
     private String name;
-    private List<Branch> branches;
-    private boolean isFork;
+    private boolean fork;
 }

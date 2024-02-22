@@ -6,6 +6,5 @@ import java.util.List;
 
 @Data
 public class GitHubUser {
-    private String userName;
-    private List<GitHubRepository> gitHubRepositoryList;
+    private String login;
 }
