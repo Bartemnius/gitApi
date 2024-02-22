@@ -3,8 +3,10 @@ package com.project.gitApi.controller;
 import com.project.gitApi.model.Branch;
 import com.project.gitApi.model.GitHubRepository;
 import com.project.gitApi.model.GitHubUser;
+import com.project.gitApi.model.UserInfo;
 import com.project.gitApi.service.ApiService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,5 +35,11 @@ public class ApiController {
     public List<Branch> getBranchesForRepo(@PathVariable String user,
                                            @PathVariable String repo) {
         return apiService.getBranches(user, repo);
+    }
+
+    @GetMapping("/getInfo/{user}")
+    public ResponseEntity<UserInfo> getUserInfo(@PathVariable String user) {
+        UserInfo userInfo = apiService.getUserInfo(user);
+        return ResponseEntity.ok(userInfo);
     }
 }
