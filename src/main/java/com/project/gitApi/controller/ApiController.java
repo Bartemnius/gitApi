@@ -22,19 +22,19 @@ public class ApiController {
     private final ApiService apiService;
 
     @GetMapping("/users/{user}")
-    public GitHubUser getUser(@PathVariable String user) {
-        return apiService.getUser(user);
+    public ResponseEntity<GitHubUser> getUser(@PathVariable String user) {
+        return ResponseEntity.ok(apiService.getUser(user));
     }
 
     @GetMapping("/users/{user}/repos")
-    public List<GitHubRepository> getReposByUser(@PathVariable String user) {
-        return apiService.getRepositories(user);
+    public ResponseEntity<List<GitHubRepository>> getReposByUser(@PathVariable String user) {
+        return ResponseEntity.ok(apiService.getRepositories(user));
     }
 
     @GetMapping("/users/{user}/{repo}/branches")
-    public List<Branch> getBranchesForRepo(@PathVariable String user,
+    public ResponseEntity<List<Branch>> getBranchesForRepo(@PathVariable String user,
                                            @PathVariable String repo) {
-        return apiService.getBranches(user, repo);
+        return ResponseEntity.ok(apiService.getBranches(user, repo));
     }
 
     @GetMapping("/getInfo/{user}")
