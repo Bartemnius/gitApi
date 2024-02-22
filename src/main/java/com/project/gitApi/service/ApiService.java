@@ -1,5 +1,6 @@
 package com.project.gitApi.service;
 
+import com.project.gitApi.model.Branch;
 import com.project.gitApi.model.GitHubRepository;
 import com.project.gitApi.model.GitHubUser;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,8 @@ public class ApiService {
 
     private final RestTemplate restTemplate;
     private final String GIT_API_ADDRESS = "https://api.github.com/users/";
+
+    private List<GitHubRepository> gitHubRepositoryList;
 
     public GitHubUser getUser(String user) {
         System.out.println(GIT_API_ADDRESS + user);
@@ -40,4 +43,16 @@ public class ApiService {
     }
 
 
+    public List<Branch> getBranches(String user, String repo) {
+        String url = "https://api.github.com/repos/" + user + "/" + repo + "/branches";
+        ResponseEntity<List<Branch>> responseEntity = restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<List<Branch>>() {}
+        );
+
+        List<Branch> branches = responseEntity.getBody();
+        return branches;
+    }
 }

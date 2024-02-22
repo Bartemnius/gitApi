@@ -1,6 +1,6 @@
 package com.project.gitApi.controller;
 
-
+import com.project.gitApi.model.Branch;
 import com.project.gitApi.model.GitHubRepository;
 import com.project.gitApi.model.GitHubUser;
 import com.project.gitApi.service.ApiService;
@@ -29,5 +29,9 @@ public class ApiController {
         return apiService.getRepositories(user);
     }
 
-
+    @GetMapping("/users/{user}/{repo}/branches")
+    public List<Branch> getBranchesForRepo(@PathVariable String user,
+                                           @PathVariable String repo) {
+        return apiService.getBranches(user, repo);
+    }
 }
