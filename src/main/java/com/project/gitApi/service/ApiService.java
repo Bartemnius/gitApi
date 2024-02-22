@@ -1,5 +1,6 @@
 package com.project.gitApi.service;
 
+import com.project.gitApi.exception.GitHubUserNotFoundException;
 import com.project.gitApi.model.Branch;
 import com.project.gitApi.model.GitHubRepository;
 import com.project.gitApi.model.GitHubUser;
@@ -9,6 +10,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
@@ -24,9 +26,17 @@ public class ApiService {
 
     public GitHubUser getUser(String user) {
         System.out.println(GIT_API_ADDRESS + user);
-        GitHubUser gitHubUser = restTemplate.getForObject(GIT_API_ADDRESS + user, GitHubUser.class);
-        System.out.println(gitHubUser);
-        return gitHubUser;
+        try {
+            ResponseEntity<GitHubUser> gitHubUser =
+                    restTemplate.exchange(
+                            GIT_API_ADDRESS + user,
+                            HttpMethod.GET,
+                            null,
+                            GitHubUser.class);
+            return gitHubUser.getBody();
+        } catch (HttpClientErrorException.NotFound e) {
+            throw new GitHubUserNotFoundException("User " + user + " does not exist!");
+        }
     }
 
     public List<GitHubRepository> getRepositories(String user) {
@@ -36,11 +46,12 @@ public class ApiService {
                 url,
                 HttpMethod.GET,
                 null,
-                new ParameterizedTypeReference<List<GitHubRepository>>() {}
+                new ParameterizedTypeReference<List<GitHubRepository>>() {
+                }
         );
 
         List<GitHubRepository> gitHubRepositoryList = responseEntity.getBody();
-        return  gitHubRepositoryList;
+        return gitHubRepositoryList;
     }
 
 
@@ -50,7 +61,8 @@ public class ApiService {
                 url,
                 HttpMethod.GET,
                 null,
-                new ParameterizedTypeReference<List<Branch>>() {}
+                new ParameterizedTypeReference<List<Branch>>() {
+                }
         );
 
         List<Branch> branches = responseEntity.getBody();
@@ -63,7 +75,7 @@ public class ApiService {
         Map<String, List<Branch>> branchesMap = new HashMap<>();
         for (GitHubRepository repo : repositories) {
             List<Branch> branches = getBranches(user, repo.getName());
-            branchesMap.put(repo.getName(), branches);
+            if (!repo.isFork()) branchesMap.put(repo.getName(), branches);
         }
         return new UserInfo(gitHubUser.getLogin(), branchesMap);
     }
