@@ -1,82 +1,34 @@
 package com.project.gitApi.service;
 
-import com.project.gitApi.exception.GitHubUserNotFoundException;
+import com.project.gitApi.client.GitHubApiClient;
 import com.project.gitApi.model.Branch;
 import com.project.gitApi.model.GitHubRepository;
 import com.project.gitApi.model.GitHubUser;
 import com.project.gitApi.model.UserInfo;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class ApiService {
 
-    private final RestTemplate restTemplate;
-    private final String GIT_API_ADDRESS = "https://api.github.com/users/";
+    private final GitHubApiClient gitHubApiClient;
 
     public GitHubUser getUser(String user) {
-        System.out.println(GIT_API_ADDRESS + user);
-        try {
-            ResponseEntity<GitHubUser> gitHubUser =
-                    restTemplate.exchange(
-                            GIT_API_ADDRESS + user,
-                            HttpMethod.GET,
-                            null,
-                            GitHubUser.class);
-            return gitHubUser.getBody();
-        } catch (HttpClientErrorException.NotFound e) {
-            throw new GitHubUserNotFoundException("User " + user + " does not exist!");
-        }
+        return gitHubApiClient.getUser(user);
     }
 
     public List<GitHubRepository> getRepositories(String user) {
-        String url = GIT_API_ADDRESS + user + "/repos";
-
-        ResponseEntity<List<GitHubRepository>> responseEntity = restTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<List<GitHubRepository>>() {
-                }
-        );
-
-        List<GitHubRepository> gitHubRepositoryList = responseEntity.getBody();
-        return gitHubRepositoryList;
+        return gitHubApiClient.getRepositories(user);
     }
 
-
     public List<Branch> getBranches(String user, String repo) {
-        String url = "https://api.github.com/repos/" + user + "/" + repo + "/branches";
-        ResponseEntity<List<Branch>> responseEntity = restTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<List<Branch>>() {
-                }
-        );
-
-        List<Branch> branches = responseEntity.getBody();
-        return branches;
+        return gitHubApiClient.getBranches(user, repo);
     }
 
     public UserInfo getUserInfo(String user) {
-        GitHubUser gitHubUser = getUser(user);
-        List<GitHubRepository> repositories = getRepositories(user);
-        Map<String, List<Branch>> branchesMap = new HashMap<>();
-        for (GitHubRepository repo : repositories) {
-            List<Branch> branches = getBranches(user, repo.getName());
-            if (!repo.isFork()) branchesMap.put(repo.getName(), branches);
-        }
-        return new UserInfo(gitHubUser.getLogin(), branchesMap);
+        return gitHubApiClient.getUserInfo(user);
     }
 }

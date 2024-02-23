@@ -10,5 +10,5 @@ import java.util.Map;
 @AllArgsConstructor
 public class UserInfo {
     private String login;
-    private Map<String, List<Branch>> branches;
+    private Map<String, List<Branch>> repos;
 }

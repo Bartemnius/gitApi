@@ -33,7 +33,7 @@ public class ApiController {
 
     @GetMapping("/users/{user}/{repo}/branches")
     public ResponseEntity<List<Branch>> getBranchesForRepo(@PathVariable String user,
-                                           @PathVariable String repo) {
+                                                           @PathVariable String repo) {
         return ResponseEntity.ok(apiService.getBranches(user, repo));
     }
 
