@@ -7,12 +7,12 @@ import com.project.gitApi.model.GitHubUser;
 import com.project.gitApi.model.UserInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +32,7 @@ public class GitHubApiClient {
                     restTemplate.exchange(
                             GITHUB_USERS_API_PREFIX + user,
                             HttpMethod.GET,
-                            null,
+                            getEntityWithHeader(),
                             GitHubUser.class);
             return gitHubUser.getBody();
         } catch (HttpClientErrorException.NotFound e) {
@@ -46,7 +46,7 @@ public class GitHubApiClient {
         ResponseEntity<List<GitHubRepository>> responseEntity = restTemplate.exchange(
                 url,
                 HttpMethod.GET,
-                null,
+                getEntityWithHeader(),
                 new ParameterizedTypeReference<>() {
                 }
         );
@@ -60,7 +60,7 @@ public class GitHubApiClient {
         ResponseEntity<List<Branch>> responseEntity = restTemplate.exchange(
                 url,
                 HttpMethod.GET,
-                null,
+                getEntityWithHeader(),
                 new ParameterizedTypeReference<>() {
                 }
         );
@@ -77,5 +77,11 @@ public class GitHubApiClient {
             if (!repo.isFork()) branchesMap.put(repo.getName(), branches);
         }
         return new UserInfo(gitHubUser.getLogin(), branchesMap);
+    }
+
+    private HttpEntity<String> getEntityWithHeader() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        return new HttpEntity<>("headerEntity", headers);
     }
 }
